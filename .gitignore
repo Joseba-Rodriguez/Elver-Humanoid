@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Simulador: binarios generados por compilar.py
+simulador/mega-pc/build/
+
+# Muestras de voz temporales
+esp32-xiaozhi/muestras-voz/_*.wav
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/

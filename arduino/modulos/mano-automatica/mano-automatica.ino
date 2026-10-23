@@ -14,7 +14,7 @@
   6     -> 35            -> Muñeca, giro izquierda/derecha
   16    -> 45            -> Codo, movimiento arriba/abajo
 
-  CONVENCIÓN DE ÁNGULOS (0-180°, igual que en flex-mano/mano-felx.ino):
+  CONVENCIÓN DE ÁNGULOS (0-180°, igual que en mano-flex/mano-flex.ino):
   - Dedos (índice, corazón, anular+meñique): 0° = dedo cerrado/flexionado, 180° = dedo abierto/recto.
   - Pulgar flexión (motor 1): 0° = pulgar flexionado hacia la palma, 180° = pulgar recto/extendido.
   - Pulgar vertical/oposición (motor 5): 0° = pulgar plano, pegado al plano de la mano,
@@ -34,7 +34,7 @@
   todavía (ver LIM_MIN_PULGAR_VERTICAL / LIM_MAX_PULGAR_VERTICAL). Ajusta estos límites
   según lo que veas físicamente en tu mano.
 
-  No modifica ni depende de la carpeta flex-mano (esa mano se controla por sensores flex).
+  No modifica ni depende de la carpeta mano-flex (esa mano se controla por sensores flex).
 
   MODOS DE FUNCIONAMIENTO (Monitor Serie a 9600 baudios):
   Escribe un número y pulsa Enter para cambiar de modo en cualquier momento:

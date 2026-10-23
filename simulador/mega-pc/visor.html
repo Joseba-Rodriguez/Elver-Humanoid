@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visor de Elver</title>
+<style>
+  :root {
+    --fondo: #12151c; --panel: #1b2029; --borde: #2a313d; --texto: #e6e9ef; --tenue: #8a93a3;
+    --pieza: #c9ced8; --pieza-osc: #9aa2b1; --ojo: #f4f6fa; --iris: #2f6fdf; --parpado: #b4bac6;
+    --tu: #4fc3f7; --ia: #ce93d8; --cmd: #ffd54f; --mega: #81c784;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--texto); font: 14px/1.4 system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--borde); }
+  header h1 { font-size: 18px; margin: 0 12px 0 0; }
+  .chip { padding: 3px 10px; border-radius: 999px; background: var(--panel); border: 1px solid var(--borde); color: var(--tenue); }
+  .chip b { color: var(--texto); font-weight: 600; }
+  .chip.desconectado { color: #ef9a9a; border-color: #ef9a9a55; }
+  main { display: grid; grid-template-columns: minmax(320px, 560px) minmax(280px, 1fr); gap: 16px; padding: 16px; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  .caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 12px; padding: 12px; }
+  .caja h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--tenue); margin: 0 0 8px; }
+  svg { width: 100%; height: auto; display: block; }
+  .nota { color: var(--tenue); font-size: 12px; margin-top: 6px; }
+  .botones { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .botones span { width: 100%; color: var(--tenue); font-size: 12px; margin-top: 4px; }
+  button { background: #252c38; color: var(--texto); border: 1px solid var(--borde); border-radius: 8px; padding: 5px 9px; cursor: pointer; font: inherit; font-size: 13px; }
+  button:hover { background: #2f3846; }
+  #eventos { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; font-size: 13px; }
+  #eventos li { padding: 3px 0; border-bottom: 1px solid #ffffff08; }
+  #eventos .hora { color: var(--tenue); margin-right: 6px; font-variant-numeric: tabular-nums; }
+  .t-tu { color: var(--tu); } .t-ia { color: var(--ia); } .t-cmd { color: var(--cmd); } .t-mega { color: var(--mega); } .t-info { color: var(--tenue); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  td { padding: 2px 4px; } td.v { text-align: right; width: 44px; }
+  .barra { height: 6px; background: #2a313d; border-radius: 3px; position: relative; }
+  .barra i { position: absolute; top: 0; bottom: 0; background: #5c7cfa; border-radius: 3px; }
+  .grupo td { color: var(--tenue); padding-top: 8px; font-weight: 600; }
+  .lado { display: grid; gap: 16px; align-content: start; }
+  /* transiciones cortas: los ángulos llegan ~20 veces por segundo */
+  .suave { transition: transform 70ms linear; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Elver</h1>
+  <span class="chip" id="c-conexion">conectando…</span>
+  <span class="chip">IA: <b id="c-ia">-</b></span>
+  <span class="chip">Conversación: <b id="c-conv">Reposo</b></span>
+  <span class="chip">Ánimo: <b id="c-animo">Tranquilo</b></span>
+  <span class="chip" id="c-extra" hidden></span>
+</header>
+<main>
+  <section class="caja">
+    <h2>Elver (visto de frente)</h2>
+    <svg viewBox="0 0 560 520" aria-label="Robot Elver">
+      <defs>
+        <!-- Forma del ojo: recorta pupila y párpados para que no se salgan -->
+        <clipPath id="ojo-clip"><ellipse rx="30" ry="24"/></clipPath>
+      </defs>
+      <!-- Cuerpo y cuello (el cuello no se mueve: la cabeza pivota sobre él) -->
+      <rect x="205" y="330" width="150" height="170" rx="26" fill="var(--pieza-osc)"/>
+      <rect x="266" y="250" width="28" height="90" rx="8" fill="var(--pieza-osc)"/>
+      <!-- Brazo derecho de Elver (a la izquierda de la pantalla) -->
+      <g transform="translate(200 350)">
+        <rect x="-22" y="-10" width="30" height="100" rx="14" fill="var(--pieza)"/>
+        <g id="antebrazo" class="suave" transform="translate(-7 85) rotate(0)">
+          <rect x="-13" y="0" width="26" height="95" rx="12" fill="var(--pieza)"/>
+          <g id="mano" transform="translate(0 92)">
+            <g id="palma" class="suave">
+              <rect x="-22" y="0" width="44" height="40" rx="10" fill="var(--pieza)"/>
+              <g id="dedos"></g>
+              <g id="pulgar-g" class="suave" transform="translate(22 10)">
+                <rect id="pulgar" x="0" y="-5" width="10" height="34" rx="5" fill="var(--pieza-osc)"/>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <!-- Cabeza: inclinación (rodar) y giro -->
+      <g transform="translate(280 175)">
+        <g id="cabeza" class="suave">
+          <g id="cara-escala" class="suave">
+            <rect x="-100" y="-110" width="200" height="200" rx="60" fill="var(--pieza)"/>
+          </g>
+          <g id="rasgos" class="suave">
+            <!-- Ojo derecho de Elver (izquierda de la pantalla) y ojo izquierdo -->
+            <g transform="translate(-45 -15)">
+              <g clip-path="url(#ojo-clip)">
+                <ellipse rx="30" ry="24" fill="var(--ojo)"/>
+                <g id="pupila-d" class="suave"><circle r="11" fill="var(--iris)"/><circle r="5" fill="#0b0d12"/></g>
+                <rect id="psup-d" x="-33" y="-27" width="66" height="0" fill="var(--parpado)"/>
+                <rect id="pinf-d" x="-33" y="27" width="66" height="0" fill="var(--parpado)"/>
+              </g>
+              <ellipse rx="30" ry="24" fill="none" stroke="var(--pieza-osc)" stroke-width="4"/>
+            </g>
+            <g transform="translate(45 -15)">
+              <g clip-path="url(#ojo-clip)">
+                <ellipse rx="30" ry="24" fill="var(--ojo)"/>
+                <g id="pupila-i" class="suave"><circle r="11" fill="var(--iris)"/><circle r="5" fill="#0b0d12"/></g>
+                <rect id="psup-i" x="-33" y="-27" width="66" height="0" fill="var(--parpado)"/>
+                <rect id="pinf-i" x="-33" y="27" width="66" height="0" fill="var(--parpado)"/>
+              </g>
+              <ellipse rx="30" ry="24" fill="none" stroke="var(--pieza-osc)" stroke-width="4"/>
+            </g>
+            <rect x="-28" y="45" width="56" height="8" rx="4" fill="var(--pieza-osc)"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+    <p class="nota">Vista de frente: el lado izquierdo de Elver aparece a la derecha de la pantalla. La inclinación y el giro del cuello, los ojos, los párpados, el codo, la muñeca y cada dedo siguen los ángulos reales del programa del Mega.</p>
+  </section>
+
+  <div class="lado">
+    <section class="caja">
+      <h2>Órdenes (como si las mandara la IA)</h2>
+      <div class="botones" id="botones"></div>
+    </section>
+    <section class="caja">
+      <h2>Eventos</h2>
+      <ul id="eventos"></ul>
+    </section>
+    <section class="caja">
+      <h2>Servos</h2>
+      <table id="servos"></table>
+    </section>
+  </div>
+</main>
+
+<script>
+const SERVOS = [
+  ["CUELLO", [[36, "Inclinación izq."], [37, "Inclinación der."], [38, "Giro"]]],
+  ["OJOS", [[39, "Párpado sup. izq."], [40, "Párpado sup. der."], [41, "Párpado inf. izq."], [42, "Párpado inf. der."], [43, "Ojos vertical"], [44, "Ojos horizontal"]]],
+  ["MANO", [[30, "Pulgar flexión"], [31, "Índice"], [32, "Corazón"], [33, "Anular + meñique"], [34, "Pulgar vertical"], [35, "Muñeca"], [45, "Codo"]]],
+];
+const BOTONES = [
+  ["Gestos", [["h", "Saludar"], ["v", "Ven aquí"], ["s", "Silencio"], ["m", "Así así"], ["t", "Tamborilear"], ["j", "Guiño"]]],
+  ["Mano", [["n", "Piedra"], ["b", "Papel"], ["x", "Tijera"], ["u", "Pulgar arriba"], ["w", "Señalar"], ["o", "OK"], ["r", "Relajada"]]],
+  ["Cabeza", [["L", "Girar izq."], ["R", "Girar der."], ["I", "Inclinar izq."], ["D", "Inclinar der."], ["C", "Centro"], ["N", "Negar"]]],
+  ["Conversación", [["E", "Escuchando"], ["H", "Hablando"], ["Z", "Reposo"]]],
+  ["Estado", [["0", "Tranquilo"], ["1", "Curioso"], ["2", "Somnoliento"], ["3", "Alerta"], ["4", "Tímido"], ["q", "Quieto"], ["Q", "Moverse"], ["d", "Dormir"], ["a", "Despertar"]]],
+];
+const LIMITES = {36:[78,115],37:[78,115],38:[55,125],39:[90,130],40:[50,90],41:[50,90],42:[90,130],43:[70,110],44:[70,100],
+                 30:[5,175],31:[5,175],32:[5,175],33:[5,175],34:[75,105],35:[90,175],45:[5,175]};
+
+// Botones
+const cajaBotones = document.getElementById("botones");
+for (const [grupo, lista] of BOTONES) {
+  const t = document.createElement("span"); t.textContent = grupo; cajaBotones.appendChild(t);
+  for (const [c, nombre] of lista) {
+    const b = document.createElement("button");
+    b.textContent = nombre; b.title = `Comando '${c}'`;
+    b.onclick = () => fetch("/comando", { method: "POST", body: c });
+    cajaBotones.appendChild(b);
+  }
+}
+
+// Tabla de servos
+const tabla = document.getElementById("servos");
+const celdas = {};
+for (const [grupo, lista] of SERVOS) {
+  tabla.insertAdjacentHTML("beforeend", `<tr class="grupo"><td colspan="3">${grupo}</td></tr>`);
+  for (const [pin, nombre] of lista) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${nombre}</td><td><div class="barra"><i></i></div></td><td class="v">-</td>`;
+    tabla.appendChild(tr);
+    celdas[pin] = { barra: tr.querySelector("i"), valor: tr.querySelector(".v") };
+  }
+}
+
+// Dedos: índice, corazón, anular y meñique (los dos últimos comparten servo)
+const dedos = [[31, -15, 30], [32, -5, 34], [33, 5, 31], [33, 15, 25]];
+const gDedos = document.getElementById("dedos");
+const rectDedos = dedos.map(([pin, x, largo]) => {
+  const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  r.setAttribute("x", x - 4.5); r.setAttribute("width", 9); r.setAttribute("rx", 4.5);
+  r.setAttribute("fill", "var(--pieza-osc)");
+  gDedos.appendChild(r);
+  return { r, pin, largo };
+});
+
+const $ = id => document.getElementById(id);
+const abierto = a => Math.min(1, Math.max(0, (a - 5) / 170));       // 0 cerrado ... 1 abierto
+
+function dibujar(ang) {
+  const g = p => ang[p] ?? null;
+  // Cuello: inclinación lateral (con los dos servos) y giro
+  if (g(36) !== null && g(37) !== null) {
+    const rodar = ((g(36) - 90) - (g(37) - 90)) / 2;
+    $("cabeza").setAttribute("transform", `rotate(${rodar.toFixed(1)} 0 95)`);   // pivota sobre el cuello
+  }
+  if (g(38) !== null) {
+    const giro = (90 - g(38)) / 35;                                  // -1 ... 1
+    $("rasgos").setAttribute("transform", `translate(${(giro * 30).toFixed(1)} 0)`);
+    $("cara-escala").setAttribute("transform", `scale(${(1 - Math.abs(giro) * 0.12).toFixed(3)} 1)`);
+  }
+  // Ojos: mirada
+  if (g(43) !== null && g(44) !== null) {
+    const h = g(44) <= 90 ? (90 - g(44)) / 20 : (90 - g(44)) / 10;   // + = hacia la izquierda de Elver
+    const v = (g(43) - 90) / 20;                                     // + = abajo
+    const t = `translate(${(h * 11).toFixed(1)} ${(v * 9).toFixed(1)})`;
+    $("pupila-d").setAttribute("transform", t);
+    $("pupila-i").setAttribute("transform", t);
+  }
+  // Párpados: % de cierre de cada uno según su ángulo abierto/cerrado
+  const cierre = (a, abiertoA, cerradoA) => a === null ? 0 : Math.min(1, Math.max(0, (a - abiertoA) / (cerradoA - abiertoA)));
+  const parpados = [["psup-i", g(39), 130, 90, true], ["pinf-i", g(41), 50, 90, false],
+                    ["psup-d", g(40), 50, 90, true], ["pinf-d", g(42), 130, 90, false]];
+  for (const [id, a, ab, ce, arriba] of parpados) {
+    const alto = cierre(a, ab, ce) * 28;          // 28 > 27: cerrados se solapan sin dejar raya
+    const r = $(id);
+    r.setAttribute("height", alto.toFixed(1));
+    if (!arriba) r.setAttribute("y", (27 - alto).toFixed(1));
+    else r.setAttribute("y", -27);
+  }
+  // Brazo: codo (0 abajo ... 180 arriba) y muñeca (90 recta ... 175 girada hacia dentro)
+  if (g(45) !== null) {
+    $("antebrazo").setAttribute("transform", `translate(-7 85) rotate(${(g(45) / 180 * 150).toFixed(1)})`);
+  }
+  if (g(35) !== null) {
+    const giroMuneca = (g(35) - 90) / 85;
+    $("palma").setAttribute("transform", `scale(${(1 - giroMuneca * 0.55).toFixed(3)} 1)`);
+  }
+  // Dedos: más cortos cuanto más cerrados (vistos de frente se doblan hacia la palma)
+  for (const d of rectDedos) {
+    const a = g(d.pin);
+    if (a === null) continue;
+    const largo = d.largo * (0.25 + 0.75 * abierto(a));
+    d.r.setAttribute("y", 40); d.r.setAttribute("height", largo.toFixed(1));
+  }
+  if (g(30) !== null) $("pulgar").setAttribute("height", (34 * (0.35 + 0.65 * abierto(g(30)))).toFixed(1));
+  if (g(34) !== null) $("pulgar-g").setAttribute("transform", `translate(22 10) rotate(${((g(34) - 90) * -2).toFixed(1)})`);
+
+  // Tabla
+  for (const pin in celdas) {
+    const a = g(+pin); if (a === null) continue;
+    const [lo, hi] = LIMITES[pin];
+    celdas[pin].valor.textContent = a + "°";
+    celdas[pin].barra.style.left = (lo / 180 * 100) + "%";
+    celdas[pin].barra.style.width = ((a - lo) / 180 * 100) + "%";
+  }
+}
+
+const etiquetas = { tu: "Tú", ia: "IA", cmd: "→ Mega", mega: "Mega", info: "" };
+let ultimoEvento = "";
+function pintarEventos(eventos) {
+  const clave = JSON.stringify(eventos.at(-1) ?? "") + eventos.length;
+  if (clave === ultimoEvento) return;
+  ultimoEvento = clave;
+  $("eventos").innerHTML = eventos.slice().reverse().map(([hora, tipo, texto]) =>
+    `<li><span class="hora">${hora}</span><span class="t-${tipo}">${etiquetas[tipo]} ${texto.replace(/</g, "&lt;")}</span></li>`).join("");
+}
+
+function conectar() {
+  const fuente = new EventSource("/estado");
+  fuente.onopen = () => { $("c-conexion").textContent = "conectado"; $("c-conexion").classList.remove("desconectado"); };
+  fuente.onerror = () => { $("c-conexion").textContent = "sin conexión con puente.py"; $("c-conexion").classList.add("desconectado"); };
+  fuente.onmessage = e => {
+    const d = JSON.parse(e.data);
+    $("c-conexion").textContent = "conectado"; $("c-conexion").classList.remove("desconectado");
+    dibujar(d.angulos);
+    pintarEventos(d.eventos);
+    $("c-ia").textContent = d.ia;
+    $("c-conv").textContent = d.elver.conversacion;
+    $("c-animo").textContent = d.elver.animo;
+    const extra = [d.elver.dormido && "Durmiendo", d.elver.quieto && "Quieto"].filter(Boolean).join(" · ");
+    $("c-extra").hidden = !extra; $("c-extra").textContent = extra;
+  };
+}
+conectar();
+</script>
+</body>
+</html>
