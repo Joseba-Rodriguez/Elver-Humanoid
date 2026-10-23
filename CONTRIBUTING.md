@@ -3,7 +3,7 @@
 ¡Gracias por querer echar una mano (o un servo)!
 
 ## Ideas y fallos
-Abre un [issue](https://github.com/Joseba-Rodriguez/3D-Humanoid/issues/new/choose): hay plantillas para fallos, ideas y para enseñar tu propio Elver.
+Abre un [issue](https://github.com/Joseba-Rodriguez/Elver-Humanoid/issues/new/choose): hay plantillas para fallos, ideas y para enseñar tu propio Elver.
 
 ## Pull requests
 1. Haz un fork y crea una rama: `git checkout -b mi-mejora`.

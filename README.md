@@ -13,10 +13,11 @@
 [![C++](https://img.shields.io/badge/C++-firmware-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](arduino)
 [![Python](https://img.shields.io/badge/Python-simulador-3776AB?style=for-the-badge&logo=python&logoColor=white)](simulador)
 [![Prusa](https://img.shields.io/badge/Impreso_en-Prusa-FA6831?style=for-the-badge&logo=prusa3d&logoColor=white)](#-el-equipo)
+[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-00ff9c?style=for-the-badge)](LICENSE)
 
-[![Stars](https://img.shields.io/github/stars/Joseba-Rodriguez/3D-Humanoid?style=social)](https://github.com/Joseba-Rodriguez/3D-Humanoid/stargazers)
-[![Último commit](https://img.shields.io/github/last-commit/Joseba-Rodriguez/3D-Humanoid?color=00ff9c&label=%C3%BAltimo%20commit)](https://github.com/Joseba-Rodriguez/3D-Humanoid/commits/main)
-[![Tamaño](https://img.shields.io/github/repo-size/Joseba-Rodriguez/3D-Humanoid?color=blueviolet&label=tama%C3%B1o)](#)
+[![Stars](https://img.shields.io/github/stars/Joseba-Rodriguez/Elver-Humanoid?style=social)](https://github.com/Joseba-Rodriguez/Elver-Humanoid/stargazers)
+[![Último commit](https://img.shields.io/github/last-commit/Joseba-Rodriguez/Elver-Humanoid?color=00ff9c&label=%C3%BAltimo%20commit)](https://github.com/Joseba-Rodriguez/Elver-Humanoid/commits/main)
+[![Tamaño](https://img.shields.io/github/repo-size/Joseba-Rodriguez/Elver-Humanoid?color=blueviolet&label=tama%C3%B1o)](#)
 
 [Qué hace](#-qué-hace) · [Arquitectura](#️-arquitectura) · [Empezar](#-empezar-en-5-minutos) · [Simulador](#-pruébalo-sin-robot-simulador) · [Comandos](#️-comandos) · [Conexionado](#-conexionado)
 
@@ -176,7 +177,7 @@ Un carácter por el Monitor Serie (9600) o desde el ESP32 por Serial1 (115200):
 ## 📁 Estructura
 
 ```
-3D-Humanoid/
+Elver-Humanoid/
 ├── arduino/
 │   ├── humanoide-automatico/   ⭐ el programa completo de Elver (cárgalo en el Mega)
 │   └── modulos/                pruebas por partes: cuello, ojos, mano, calibración, mano con guante flex
@@ -212,11 +213,17 @@ Elver es un proyecto a cuatro manos:
 
 ---
 
+## 📜 Licencia
+
+[MIT](LICENSE): úsalo, modifícalo y construye tu propio Elver. Solo pedimos que cites el proyecto original.
+
+---
+
 <div align="center">
 
 ### ⭐ Si Elver te ha sacado una sonrisa, dale una estrella: le ayuda a crecer (y él te guiñará un ojo 😉)
 
-[![Star History](https://api.star-history.com/svg?repos=Joseba-Rodriguez/3D-Humanoid&type=Date)](https://star-history.com/#Joseba-Rodriguez/3D-Humanoid&Date)
+[![Star History](https://api.star-history.com/svg?repos=Joseba-Rodriguez/Elver-Humanoid&type=Date)](https://star-history.com/#Joseba-Rodriguez/Elver-Humanoid&Date)
 
 <sub>Hecho en Bilbao con servos, PLA y muchas horas de calibración 🤖</sub>
 
